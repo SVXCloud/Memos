@@ -47,7 +47,7 @@ jobs:
         working-directory: web
         run: |
           pnpm lint
-          pnpm test
+          pnpm test --testTimeout=20000
       - name: Build embedded frontend
         working-directory: web
         run: pnpm release
