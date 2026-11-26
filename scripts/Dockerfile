@@ -30,4 +30,4 @@ COPY --from=backend /backend-build/memos /usr/local/memos/memos
 COPY --chmod=755 scripts/entrypoint.sh /usr/local/memos/entrypoint.sh
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s \
-    CMD wget -q -O /dev/null "http://127.0.0.1:${MEMOS_PORT}/memo/healthz" || exit 1
+    CMD wget -Y off -q -O /dev/null "http://127.0.0.1:${MEMOS_PORT}/memo/healthz" || exit 1

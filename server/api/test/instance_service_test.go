@@ -36,7 +36,7 @@ func TestGetInstanceProfile(t *testing.T) {
 		require.Equal(t, "test-1.0.0", resp.Version)
 		require.Equal(t, "test-commit", resp.Commit)
 		require.True(t, resp.Demo)
-		require.Equal(t, "http://localhost:8080", resp.InstanceUrl)
+		require.Equal(t, "http://localhost:8080/memo", resp.InstanceUrl)
 		require.Equal(t, apipb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PUBLIC, resp.AccessMode)
 
 		// Instance should not be initialized since no users exist at all.
@@ -66,7 +66,7 @@ func TestGetInstanceProfile(t *testing.T) {
 		require.Equal(t, "test-1.0.0", resp.Version)
 		require.Equal(t, "test-commit", resp.Commit)
 		require.True(t, resp.Demo)
-		require.Equal(t, "http://localhost:8080", resp.InstanceUrl)
+		require.Equal(t, "http://localhost:8080/memo", resp.InstanceUrl)
 
 		// Instance should be initialized since an admin user exists
 		require.NotNil(t, resp.Admin)
@@ -161,7 +161,7 @@ func TestGetInstanceProfile_Concurrency(t *testing.T) {
 				require.Equal(t, "test-1.0.0", resp.Version)
 				require.Equal(t, "test-commit", resp.Commit)
 				require.True(t, resp.Demo)
-				require.Equal(t, "http://localhost:8080", resp.InstanceUrl)
+				require.Equal(t, "http://localhost:8080/memo", resp.InstanceUrl)
 				require.NotNil(t, resp.Admin)
 			}
 		}

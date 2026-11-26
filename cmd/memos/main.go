@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/usememos/memos/core/configuration"
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/internal/version"
 	"github.com/usememos/memos/internal/webhook"
@@ -227,10 +228,10 @@ func printServerInfo(profile *profile.Profile, accessMode storepb.InstanceAccess
 	if len(profile.UNIXSock) == 0 {
 		if len(profile.Addr) == 0 {
 			fmt.Printf("Server running on port %d\n", profile.Port)
-			fmt.Printf("Access your memos at: http://localhost:%d\n", profile.Port)
+			fmt.Printf("Access your memos at: http://localhost:%d%s/\n", profile.Port, deployment.BasePath())
 		} else {
 			fmt.Printf("Server running on %s:%d\n", profile.Addr, profile.Port)
-			fmt.Printf("Access your memos at: http://%s:%d\n", profile.Addr, profile.Port)
+			fmt.Printf("Access your memos at: http://%s:%d%s/\n", profile.Addr, profile.Port, deployment.BasePath())
 		}
 	} else {
 		fmt.Printf("Server running on unix socket: %s\n", profile.UNIXSock)

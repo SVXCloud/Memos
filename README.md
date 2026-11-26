@@ -86,7 +86,7 @@ location ^~ /memo/ {
     proxy_buffering off;
     proxy_request_buffering off;
     proxy_read_timeout 1h;
-    client_max_body_size 10m;
+    client_max_body_size 256m;
 }
 ```
 

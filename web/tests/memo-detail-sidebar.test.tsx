@@ -161,7 +161,7 @@ describe("MemoDetailSidebar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "common.share" }));
     fireEvent.click(await screen.findByRole("menuitem", { name: "memo.copy-link" }));
-    expect(copyToClipboard).toHaveBeenCalledWith("https://memos.example/memos/detail");
+    expect(copyToClipboard).toHaveBeenCalledWith("https://memos.example/memo/memos/detail");
 
     fireEvent.click(screen.getByRole("button", { name: "common.share" }));
     fireEvent.click(await screen.findByRole("menuitem", { name: "memo.share.open-image" }));

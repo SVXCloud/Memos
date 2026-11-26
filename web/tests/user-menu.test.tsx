@@ -71,7 +71,7 @@ describe("User menu panel", () => {
     try {
       renderMenu();
       fireEvent.click(screen.getByRole("button", { name: "common.sign-out" }));
-      await waitFor(() => expect(replace).toHaveBeenCalledWith("/auth?auto_sign_in=false"));
+      await waitFor(() => expect(replace).toHaveBeenCalledWith("/memo/auth?auto_sign_in=false"));
       expect(mocks.logout).toHaveBeenCalledOnce();
     } finally {
       Object.defineProperty(window, "location", { configurable: true, value: originalLocation });

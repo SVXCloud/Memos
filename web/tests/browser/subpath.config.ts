@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: ".",
   testMatch: "subpath.spec.ts",
   workers: 1,
+  expect: { timeout: 15_000 },
   reporter: "list",
   outputDir: "../../node_modules/.cache/subpath-browser-results",
   use: {

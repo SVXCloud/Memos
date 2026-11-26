@@ -17,7 +17,7 @@ import urllib.request
 import uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent.parent
 MOUNT = "/memo"
 USERNAME = "subpath-admin"
 PASSWORD = "subpath-test-password"
@@ -103,9 +103,12 @@ class Client:
     def create_admin(self):
         assert self.api("/users", {"username": USERNAME, "password": PASSWORD})["role"] == "ADMIN"
 
-    def signin(self):
+    def sign_in(self, connect=False):
         data = {"passwordCredentials": {"username": USERNAME, "password": PASSWORD}}
-        body, headers = self.request("/api/auth/signin", data)
+        if connect:
+            body, headers = self.request("/memos.api.AuthService/SignIn", data, {"Connect-Protocol-Version": "1"})
+        else:
+            body, headers = self.request("/api/auth/signin", data)
         self.token = json.loads(body)["accessToken"]
         return headers
 
@@ -153,13 +156,15 @@ def proxy_checks(origin):
         _, headers = client.request("/" + icon["src"].removeprefix("./"))
         assert headers["Content-Type"] == "image/png"
     client.create_admin()
-    headers = client.signin()
+    client.sign_in()
+    assert client.api("/auth/me")["user"]["username"] == USERNAME
+    headers = client.sign_in(connect=True)
     cookie = headers["Set-Cookie"]
     assert f"Path={MOUNT};" in cookie and "HttpOnly" in cookie and "SameSite=Lax" in cookie
     old = next(iter(client.jar)).value
-    assert client.api("/auth/refresh", {})["accessToken"] and next(iter(client.jar)).value != old
-
     connect = {"Connect-Protocol-Version": "1"}
+    body, _ = client.request("/memos.api.AuthService/RefreshToken", {}, connect)
+    assert json.loads(body)["accessToken"] and next(iter(client.jar)).value != old
     with client.open("/api/sse") as stream:
         assert stream.status == 200 and stream.headers["Content-Type"] == "text/event-stream"
         assert stream.readline() == b": connected\n" and stream.readline() == b"\n"
@@ -188,18 +193,20 @@ def proxy_checks(origin):
             "io.modelcontextprotocol/clientInfo": {"name": "subpath-smoke", "version": "1.0.0"},
             "io.modelcontextprotocol/clientCapabilities": {},
         }},
-    }, {"Mcp-Method": "tools/call", "Mcp-Name": tool, "Accept": "application/json, text/event-stream"})
+    }, {"Mcp-Protocol-Version": "2026-07-28", "Mcp-Method": "tools/call",
+        "Mcp-Name": tool, "Accept": "application/json, text/event-stream"})
     assert any(m["name"] == "memos/smoke" for m in json.loads(body)["result"]["structuredContent"]["memos"])
 
-    client.request("/api/auth/signout", {})
+    client.request("/memos.api.AuthService/SignOut", {}, connect)
     assert not list(client.jar)
-    client.request("/api/auth/refresh", {}, status=401)
+    client.request("/memos.api.AuthService/RefreshToken", {}, connect, status=401)
     print("PASS SQLite, prefixed proxy, PWA assets, auth cookies, refresh, sign-out, REST, Connect upload, attachment ACL, sharing, SSE and MCP", flush=True)
 
 
 def test_image(image, browser):
     network = "memos-subpath-" + uuid.uuid4().hex[:12]
     containers = []
+    data_volume = network + "-pg-data"
     docker("network", "create", network)
 
     def start(alias, image_name, port=None, options=(), command=()):
@@ -214,6 +221,8 @@ def test_image(image, browser):
     try:
         _, direct = start("app", image, 5230, ["-e", "MEMOS_INSTANCE_URL=http://localhost", "-e", "NO_PROXY=localhost,127.0.0.1,oidc"])
         wait_ready(Client(direct + MOUNT))
+        docker("exec", f"{network}-app", "sh", "-ec",
+               'wget -Y off -q -O /dev/null "http://127.0.0.1:$MEMOS_PORT/memo/healthz"')
         nginx = """server {
             listen 80;
             location / {
@@ -234,7 +243,7 @@ def test_image(image, browser):
                 "--mount", f"type=bind,src={Path(__file__).resolve()},dst=/smoke.py,readonly",
             ], ["python", "/smoke.py", "--idp"])
             client = Client(origin + MOUNT)
-            client.signin()
+            client.sign_in()
             result = client.api("/identity-providers?identityProviderId=smoke", {
                 "type": "OAUTH2", "title": "Test OIDC", "config": {"oauth2Config": {
                     "clientId": "subpath-test", "clientSecret": "fixture-client-secret",
@@ -253,7 +262,11 @@ def test_image(image, browser):
             "-e", "POSTGRES_USER=memos", "-e", "POSTGRES_PASSWORD=fixture-password", "-e", "POSTGRES_DB=memos",
         ])
         pg_dsn = "postgresql://memos:fixture-password@postgres:5432/memos?sslmode=disable"
-        db_options = ["-e", "MEMOS_DRIVER=postgres", "-e", f"MEMOS_DSN={pg_dsn}"]
+        docker("volume", "create", data_volume)
+        db_options = [
+            "-e", "MEMOS_DRIVER=postgres", "-e", f"MEMOS_DSN={pg_dsn}",
+            "--mount", f"type=volume,src={data_volume},dst=/var/opt/memos",
+        ]
         for _ in range(90):
             probe = subprocess.run(["docker", "exec", pg, "pg_isready", "-h", "127.0.0.1", "-U", "memos"],
                                    stdout=subprocess.DEVNULL)
@@ -266,11 +279,13 @@ def test_image(image, browser):
         old_client = Client(old_origin)
         wait_ready(old_client)
         old_client.create_admin()
-        old_client.signin()
+        old_client.sign_in()
         old_client.memo("before-upgrade", "PostgreSQL data before upgrade")
         old_attachment = old_client.api("/attachments?attachmentId=historical", {
             "filename": "old.txt", "type": "text/plain", "content": base64.b64encode(b"historical attachment").decode(),
         })
+        legacy_path = f"/file/{old_attachment['name']}/old.txt"
+        assert old_client.request(legacy_path)[0] == b"historical attachment"
         docker("rm", "-fv", old_name)
         containers.remove(old_name)
         current_name, current_origin = start("upgraded", image, 5230, db_options)
@@ -278,9 +293,9 @@ def test_image(image, browser):
         wait_ready(upgraded)
         migration_log = subprocess.check_output(["docker", "logs", current_name], stderr=subprocess.STDOUT, text=True)
         assert "migration completed" in migration_log, "no incremental migrations were applied"
-        upgraded.signin()
+        upgraded.sign_in()
         assert upgraded.api("/memos/before-upgrade")["content"] == "PostgreSQL data before upgrade"
-        assert upgraded.request(f"/file/{old_attachment['name']}/old.txt")[0] == b"historical attachment"
+        assert upgraded.request(legacy_path)[0] == b"historical attachment"
         print("PASS PostgreSQL incremental migration from 26.10.0, pre-existing memo and attachment", flush=True)
 
         mysql_name, _ = start("mysql", "mysql:8.4", options=[
@@ -301,7 +316,7 @@ def test_image(image, browser):
         mysql = Client(mysql_origin + MOUNT)
         wait_ready(mysql)
         mysql.create_admin()
-        mysql.signin()
+        mysql.sign_in()
         mysql.memo("mysql-smoke", "MySQL memo")
         assert mysql.api("/memos/mysql-smoke")["content"] == "MySQL memo"
         print("PASS MySQL fresh schema and memo round trip", flush=True)
@@ -312,6 +327,7 @@ def test_image(image, browser):
     finally:
         for name in reversed(containers):
             subprocess.run(["docker", "rm", "-fv", name], stdout=subprocess.DEVNULL, check=False)
+        subprocess.run(["docker", "volume", "rm", data_volume], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
         subprocess.run(["docker", "network", "rm", network], stdout=subprocess.DEVNULL, check=False)
 
 
