@@ -12,6 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/httphandler"
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/store"
@@ -163,7 +164,7 @@ func (s *FrontendService) getRobotsTXT(w http.ResponseWriter, r *http.Request) e
 
 	robotsTXT := strings.Join([]string{
 		"User-agent: *",
-		"Allow: /",
+		"Allow: " + deployment.BasePath() + "/",
 		"Host: " + instanceURL,
 		"Sitemap: " + instanceURL + "/sitemap.xml",
 	}, "\n")
@@ -223,7 +224,7 @@ func (s *FrontendService) requirePublicAccess(ctx context.Context) error {
 }
 
 func normalizeInstanceURL(instanceURL string) (string, error) {
-	instanceURL = strings.TrimRight(instanceURL, "/")
+	instanceURL = deployment.PublicURL(instanceURL)
 	if instanceURL == "" {
 		return "", &httphandler.Error{Code: http.StatusNotFound, Message: "instance URL is not configured"}
 	}

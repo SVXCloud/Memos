@@ -7,7 +7,7 @@ import AuthPageLayout, { AuthBackLink } from "@/components/AuthPageLayout";
 import { authServiceClient, userServiceClient } from "@/connect";
 import { useAuth } from "@/contexts/AuthContext";
 import useNavigateTo from "@/hooks/useNavigateTo";
-import { absolutifyLink } from "@/lib/browser";
+import { appURL } from "@/lib/deployment-path";
 import { handleError } from "@/lib/error";
 import { ROUTES } from "@/router/routes";
 import { buildAuthRoute, getSafeRedirectPath } from "@/utils/auth-redirect";
@@ -81,7 +81,7 @@ const AuthCallback = () => {
     }
 
     const { flowMode, identityProviderName, returnUrl, linkingUserName, codeVerifier } = validatedState;
-    const redirectUri = absolutifyLink("/auth/callback");
+    const redirectUri = appURL("/auth/callback");
     (async () => {
       try {
         if (flowMode === "link") {

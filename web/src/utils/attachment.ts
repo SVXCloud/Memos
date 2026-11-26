@@ -1,3 +1,4 @@
+import { appURL } from "@/lib/deployment-path";
 import { Attachment, MotionMediaFamily, MotionMediaRole } from "@/types/proto/api/attachment_service_pb";
 
 export const getAttachmentUrl = (attachment: Attachment) => {
@@ -5,7 +6,7 @@ export const getAttachmentUrl = (attachment: Attachment) => {
     return attachment.externalLink;
   }
 
-  return `${window.location.origin}/file/${attachment.name}/${encodeURIComponent(attachment.filename)}`;
+  return appURL(`/file/${attachment.name}/${encodeURIComponent(attachment.filename)}`);
 };
 
 /**
@@ -37,7 +38,7 @@ export const getAttachmentThumbnailUrl = (attachment: Attachment) => {
     return shareUrl;
   }
 
-  return `${window.location.origin}/file/${attachment.name}/${encodeURIComponent(attachment.filename)}?thumbnail=true`;
+  return appURL(`/file/${attachment.name}/${encodeURIComponent(attachment.filename)}?thumbnail=true`);
 };
 
 export const getAttachmentMotionClipUrl = (attachment: Attachment) => {
@@ -46,7 +47,7 @@ export const getAttachmentMotionClipUrl = (attachment: Attachment) => {
     return shareUrl;
   }
 
-  return `${window.location.origin}/file/${attachment.name}/${encodeURIComponent(attachment.filename)}?motion=true`;
+  return appURL(`/file/${attachment.name}/${encodeURIComponent(attachment.filename)}?motion=true`);
 };
 
 export const getAttachmentType = (attachment: Attachment) => {

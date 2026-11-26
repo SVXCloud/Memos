@@ -2,6 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { userServiceClient } from "@/connect";
 import { downloadFileFromUrl } from "@/lib/browser";
+import { appPath } from "@/lib/deployment-path";
 import type { ImportMemosPlan, ImportMemosReport, ImportMemosRequest } from "@/types/proto/api/user_service_pb";
 import { ImportMemosRequest_ConflictPolicy, ImportMemosSpecSchema } from "@/types/proto/api/user_service_pb";
 
@@ -16,7 +17,7 @@ export class MemoExportError extends Error {
   }
 }
 
-export const memoExportUrl = (username: string) => `/file/users/${encodeURIComponent(username)}/export`;
+export const memoExportUrl = (username: string) => appPath(`/file/users/${encodeURIComponent(username)}/export`);
 
 const filenameFromDisposition = (disposition: string | null): string | undefined => {
   const match = disposition?.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);

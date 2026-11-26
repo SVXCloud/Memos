@@ -1,4 +1,5 @@
 import { lineTable, sourceRange } from "@usememos/editor";
+import { appPath, routePath } from "@/lib/deployment-path";
 import { parseMemoAst, visitWithSource } from "@/lib/memo-ast";
 import type { Attachment } from "@/types/proto/api/attachment_service_pb";
 import { getAttachmentMotionGroupId, getAttachmentUrl, isImage } from "@/utils/attachment";
@@ -81,7 +82,8 @@ export const classifyManagedAttachmentImageURL = (raw: string): ManagedImageURL 
   } catch {
     return UNMANAGED;
   }
-  if (!parsed.pathname.startsWith(MANAGED_ATTACHMENT_PATH_PREFIX)) return UNMANAGED;
+  const pathname = routePath(parsed.pathname);
+  if (!pathname.startsWith(MANAGED_ATTACHMENT_PATH_PREFIX)) return UNMANAGED;
 
   const isProtocolRelative = raw.startsWith("//");
   if (isProtocolRelative) {
@@ -95,7 +97,7 @@ export const classifyManagedAttachmentImageURL = (raw: string): ManagedImageURL 
 
   if (parsed.search || parsed.hash || parsed.pathname.includes("%")) return INVALID;
 
-  const parts = parsed.pathname.slice(MANAGED_ATTACHMENT_PATH_PREFIX.length).split("/");
+  const parts = pathname.slice(MANAGED_ATTACHMENT_PATH_PREFIX.length).split("/");
   if ((parts.length !== 1 && parts.length !== 2) || !UID_PATTERN.test(parts[0] ?? "") || (parts.length === 2 && !parts[1])) {
     return INVALID;
   }
@@ -230,5 +232,6 @@ export const resolveManagedAttachmentImageSource = (source: string | undefined, 
   const uid = parseManagedAttachmentImageURL(source);
   if (!uid) return source;
   const attachment = attachments.find((candidate) => extractAttachmentUIDFromName(candidate.name) === uid);
-  return attachment ? getAttachmentUrl(attachment) : source;
+  if (attachment) return getAttachmentUrl(attachment);
+  return source.startsWith(MANAGED_ATTACHMENT_PATH_PREFIX) ? appPath(source) : source;
 };

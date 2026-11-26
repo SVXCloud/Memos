@@ -3,7 +3,7 @@ import { FieldMaskSchema } from "@bufbuild/protobuf/wkt";
 import { Button, Dialog, Field, Input, Select } from "@usememos/ui";
 import { type ReactNode, useEffect, useState } from "react";
 import { identityProviderServiceClient } from "@/connect";
-import { absolutifyLink } from "@/lib/browser";
+import { appURL } from "@/lib/deployment-path";
 import { handleError } from "@/lib/error";
 import { showErrorToast, toast } from "@/lib/toast";
 import {
@@ -502,7 +502,7 @@ function CreateIdentityProviderDialog({ open, onOpenChange, identityProvider, on
               <FormSection title={t("setting.sso.oauth-configuration")} description={t("setting.sso.oauth-configuration-description")}>
                 <div className="rounded-mu-md border bg-mu-canvas px-3 py-3">
                   <p className="mu-label-sm uppercase tracking-wide text-mu-text-secondary">{t("setting.sso.redirect-url")}</p>
-                  <p className="mt-2 break-all font-mono mu-caption text-mu-text">{absolutifyLink("/auth/callback")}</p>
+                  <p className="mt-2 break-all font-mono mu-caption text-mu-text">{appURL("/auth/callback")}</p>
                   <p className="mt-2 mu-caption text-mu-text-secondary">{t("setting.sso.redirect-url-description")}</p>
                 </div>
 

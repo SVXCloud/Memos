@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/email"
 	"github.com/usememos/memos/internal/profile"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -350,7 +351,7 @@ func (d *EmailDispatcher) baseURL() string {
 	if d.profile == nil || strings.TrimSpace(d.profile.InstanceURL) == "" {
 		return ""
 	}
-	return strings.TrimRight(strings.TrimSpace(d.profile.InstanceURL), "/")
+	return deployment.PublicURL(d.profile.InstanceURL)
 }
 
 func (d *EmailDispatcher) inboxURL() string {

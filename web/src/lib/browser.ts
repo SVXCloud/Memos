@@ -1,9 +1,3 @@
-export function absolutifyLink(rel: string): string {
-  const anchor = document.createElement("a");
-  anchor.setAttribute("href", rel);
-  return anchor.href;
-}
-
 export function getSystemColorScheme() {
   if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
     return "dark";

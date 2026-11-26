@@ -24,7 +24,7 @@ describe("existing audio transcription", () => {
 
     await expect(transcriptionService.transcribeAttachment(audio, controller.signal)).resolves.toBe("Meeting notes");
 
-    expect(fetchAudio).toHaveBeenCalledWith(`${window.location.origin}/file/attachments/voice/voice.wav`, {
+    expect(fetchAudio).toHaveBeenCalledWith(`${window.location.origin}/memo/file/attachments/voice/voice.wav`, {
       credentials: "same-origin",
       signal: controller.signal,
     });

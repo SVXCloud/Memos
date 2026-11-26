@@ -58,7 +58,7 @@ describe("MemoSharePanel", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: "memo.share.copy" }));
 
-    expect(copyToClipboard).toHaveBeenCalledWith(`${window.location.origin}/memos/shares/share-token`);
+    expect(copyToClipboard).toHaveBeenCalledWith(`${window.location.origin}/memo/memos/shares/share-token`);
     // The check mark proves setCopied ran — the copy path did not throw.
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "memo.share.copy" }).querySelector("svg.lucide-check")).not.toBeNull();

@@ -33,7 +33,7 @@ describe("attachment URL builders in share mode", () => {
   it("appends thumbnail=true to an externalLink that carries a share token", () => {
     const attachment = {
       ...baseAttachment,
-      externalLink: `${origin}/file/attachments/test-uid/photo.png?share_token=abc123`,
+      externalLink: `${origin}/memo/file/attachments/test-uid/photo.png?share_token=abc123`,
     } as Attachment;
 
     const url = new URL(getAttachmentThumbnailUrl(attachment));
@@ -44,7 +44,7 @@ describe("attachment URL builders in share mode", () => {
   it("appends motion=true to an externalLink that carries a share token", () => {
     const attachment = {
       ...baseAttachment,
-      externalLink: `${origin}/file/attachments/test-uid/photo.png?share_token=abc123`,
+      externalLink: `${origin}/memo/file/attachments/test-uid/photo.png?share_token=abc123`,
     } as Attachment;
 
     const url = new URL(getAttachmentMotionClipUrl(attachment));
@@ -58,17 +58,17 @@ describe("attachment URL builders in share mode", () => {
       externalLink: "https://cdn.example.com/photo.png?version=xyz",
     } as Attachment;
 
-    expect(getAttachmentThumbnailUrl(attachment)).toBe(`${origin}/file/attachments/test-uid/photo.png?thumbnail=true`);
+    expect(getAttachmentThumbnailUrl(attachment)).toBe(`${origin}/memo/file/attachments/test-uid/photo.png?thumbnail=true`);
   });
 
   it("keeps the server thumbnail URL when no externalLink is set", () => {
-    expect(getAttachmentThumbnailUrl(baseAttachment)).toBe(`${origin}/file/attachments/test-uid/photo.png?thumbnail=true`);
+    expect(getAttachmentThumbnailUrl(baseAttachment)).toBe(`${origin}/memo/file/attachments/test-uid/photo.png?thumbnail=true`);
   });
 
   it("leaves getAttachmentUrl returning the externalLink verbatim", () => {
     const attachment = {
       ...baseAttachment,
-      externalLink: `${origin}/file/attachments/test-uid/photo.png?share_token=abc123`,
+      externalLink: `${origin}/memo/file/attachments/test-uid/photo.png?share_token=abc123`,
     } as Attachment;
 
     expect(getAttachmentUrl(attachment)).toBe(attachment.externalLink);

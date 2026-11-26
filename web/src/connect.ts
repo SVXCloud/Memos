@@ -1,6 +1,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, createClient, type Interceptor } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
+import { appPath } from "@/lib/deployment-path";
 import { getAccessToken, hasStoredToken, isTokenExpired, REQUEST_TOKEN_EXPIRY_BUFFER_MS, setAccessToken } from "./auth-state";
 import { AIService } from "./types/proto/api/ai_service_pb";
 import { AttachmentService } from "./types/proto/api/attachment_service_pb";
@@ -63,7 +64,7 @@ const fetchWithCredentials: typeof globalThis.fetch = (input, init) => {
 
 // Separate transport without auth interceptor to prevent recursion
 const refreshTransport = createConnectTransport({
-  baseUrl: window.location.origin,
+  baseUrl: `${window.location.origin}${appPath("")}`,
   useBinaryFormat: true,
   fetch: fetchWithCredentials,
   interceptors: [],
@@ -182,7 +183,7 @@ const authInterceptor: Interceptor = (next) => async (req) => {
 // ============================================================================
 
 const transport = createConnectTransport({
-  baseUrl: window.location.origin,
+  baseUrl: `${window.location.origin}${appPath("")}`,
   useBinaryFormat: true,
   fetch: fetchWithCredentials,
   interceptors: [authInterceptor],

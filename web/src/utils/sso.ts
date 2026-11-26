@@ -1,4 +1,4 @@
-import { absolutifyLink } from "@/lib/browser";
+import { appURL } from "@/lib/deployment-path";
 import { ROUTES } from "@/router/routes";
 import { IdentityProvider, IdentityProvider_Type } from "@/types/proto/api/idp_service_pb";
 import { getSafeRedirectPath } from "@/utils/auth-redirect";
@@ -24,7 +24,7 @@ export async function prepareSSOSignIn(identityProvider: IdentityProvider, redir
   }
   const { state, codeChallenge } = await storeOAuthState(identityProvider.name, "signin", getSafeRedirectPath(redirectTarget));
   authUrl.searchParams.set("client_id", config.clientId);
-  authUrl.searchParams.set("redirect_uri", absolutifyLink(ROUTES.AUTH_CALLBACK));
+  authUrl.searchParams.set("redirect_uri", appURL(ROUTES.AUTH_CALLBACK));
   authUrl.searchParams.set("state", state);
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("scope", config.scopes.join(" "));

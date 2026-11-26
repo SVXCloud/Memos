@@ -6,6 +6,7 @@ import { attachmentKeys } from "@/hooks/useAttachmentQueries";
 import { memoKeys } from "@/hooks/useMemoQueries";
 import { spaceKeys } from "@/hooks/useSpaceQueries";
 import { userKeys } from "@/hooks/useUserQueries";
+import { appPath } from "@/lib/deployment-path";
 
 /**
  * Reconnection parameters for SSE connection.
@@ -399,7 +400,7 @@ async function cancelResponseBody(response: Response): Promise<void> {
 }
 
 function fetchSSEStream(token: string, signal: AbortSignal): Promise<Response> {
-  return fetch("/api/sse", {
+  return fetch(appPath("/api/sse"), {
     headers: {
       Accept: "text/event-stream",
       Authorization: `Bearer ${token}`,

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/usememos/memos/core/access"
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/markdown"
 	apipb "github.com/usememos/memos/proto/gen/api"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -406,7 +407,7 @@ func (s *APIService) extractManagedAttachmentReferences(content string) ([]markd
 	}
 	for _, destination := range data.ImageDestinations {
 		parsed, err := url.Parse(destination)
-		if err != nil || (!parsed.IsAbs() && parsed.Host == "") || !strings.HasPrefix(parsed.Path, "/file/attachments/") {
+		if err != nil || (!parsed.IsAbs() && parsed.Host == "") || !strings.HasPrefix(deployment.Unprefix(parsed.Path), "/file/attachments/") {
 			continue
 		}
 		if parsed.Scheme == "" && parsed.Host != "" {

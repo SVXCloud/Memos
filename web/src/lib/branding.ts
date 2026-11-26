@@ -1,4 +1,5 @@
-export const DEFAULT_FAVICON = "/favicon.svg?v=bird-blue";
+import { appPath } from "@/lib/deployment-path";
+export const DEFAULT_FAVICON = appPath("/favicon.svg?v=bird-blue");
 
 // Earlier versions persisted /logo.webp when restoring the default profile.
 // Treat built-in URLs as defaults so those instances also get the themeable SVG.

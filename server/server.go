@@ -16,6 +16,7 @@ import (
 
 	"github.com/usememos/memos/core/memopayload"
 	"github.com/usememos/memos/internal/clientip"
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/httphandler"
 	"github.com/usememos/memos/internal/profile"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -117,13 +118,14 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 		}
 		mux.ServeHTTP(w, routingRequest)
 	})
-	s.handler = httphandler.Recover(clientip.Middleware(clientIPResolver)(newCORSMiddleware(profile, mux)(router)))
+	internalHandler := httphandler.Recover(clientip.Middleware(clientIPResolver)(newCORSMiddleware(profile, mux)(router)))
 
-	mcpService, err := mcp.NewMCPService(profile, s.handler)
+	mcpService, err := mcp.NewMCPService(profile, internalHandler)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create MCP service")
 	}
 	mcpService.RegisterRoutes(mux)
+	s.handler = deployment.Mount(internalHandler)
 
 	return s, nil
 }

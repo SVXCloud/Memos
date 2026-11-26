@@ -22,6 +22,7 @@ import {
 } from "@usememos/editor";
 import { highlightLoadedCode, loadHighlighter } from "@/lib/code-highlight";
 import { colorToHex } from "@/lib/color";
+import { appPath } from "@/lib/deployment-path";
 import { headingClasses, markdownStyles, mentionStyles, tagStyles } from "@/lib/markdownStyles";
 import { MEMO_MARKDOWN, MEMO_SYNTAX } from "@/lib/memo-ast";
 import { findTagMetadata } from "@/lib/tag";
@@ -222,7 +223,10 @@ export const memoResolveUrl =
     if (kind === "image") {
       return isAllowedImageSource(url) ? (resolveManagedAttachmentImageSource(url, [...attachments]) ?? url) : null;
     }
-    return isAllowedLinkUrl(url.trim()) ? url.trim() : null;
+    const link = url.trim();
+    if (!isAllowedLinkUrl(link)) return null;
+    // Older memos can contain app links written before the fixed mount.
+    return /^\/(?:memos|file\/attachments|u)\//.test(link) ? appPath(link) : link;
   };
 
 /**

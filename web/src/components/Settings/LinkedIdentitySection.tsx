@@ -5,7 +5,7 @@ import { getIdentityProviderTypeLabel, getSSOProviderUid } from "@/components/Se
 import { identityProviderServiceClient, userServiceClient } from "@/connect";
 import { findManagedResource, useConfigurationStatus } from "@/hooks/useConfigurationQueries";
 import useCurrentUser from "@/hooks/useCurrentUser";
-import { absolutifyLink } from "@/lib/browser";
+import { appURL, routePath } from "@/lib/deployment-path";
 import { handleError } from "@/lib/error";
 import { showErrorToast, toast } from "@/lib/toast";
 import { IdentityProvider, IdentityProvider_Type } from "@/types/proto/api/idp_service_pb";
@@ -94,7 +94,7 @@ const LinkedIdentitySection = () => {
     if (!currentUser?.name) {
       return;
     }
-    const redirectUri = absolutifyLink("/auth/callback");
+    const redirectUri = appURL("/auth/callback");
     const oauth2Config = identityProvider.config?.config?.case === "oauth2Config" ? identityProvider.config.config.value : undefined;
     if (!oauth2Config) {
       showErrorToast(t("setting.sso.invalid-config"));
@@ -102,7 +102,7 @@ const LinkedIdentitySection = () => {
     }
 
     try {
-      const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const returnUrl = `${routePath(window.location.pathname)}${window.location.search}${window.location.hash}`;
       const { state, codeChallenge } = await storeOAuthState(identityProvider.name, "link", returnUrl, currentUser.name);
 
       let authUrl = `${oauth2Config.authUrl}?client_id=${

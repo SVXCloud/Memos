@@ -1,8 +1,9 @@
 import babel from "@rolldown/plugin-babel";
+import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { defineConfig } from "vite";
-import tailwindcss from "@tailwindcss/vite";
+import { basePath } from "./deployment-path";
 
 let devProxyServer = "http://localhost:8081";
 if (process.env.DEV_PROXY_SERVER && process.env.DEV_PROXY_SERVER.length > 0) {
@@ -12,26 +13,28 @@ if (process.env.DEV_PROXY_SERVER && process.env.DEV_PROXY_SERVER.length > 0) {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: `${basePath}/`,
+  define: { __MEMOS_BASE_PATH__: JSON.stringify(basePath) },
   plugins: [react(), babel({ presets: [reactCompilerPreset()] }), tailwindcss()],
   server: {
     host: "0.0.0.0",
     port: 3001,
     proxy: {
-      "^/api/sse": {
+      [`^${basePath}/api/sse`]: {
         target: devProxyServer,
         xfwd: true,
         // SSE requires no response buffering and longer timeout.
         timeout: 0,
       },
-      "^/api": {
+      [`^${basePath}/api`]: {
         target: devProxyServer,
         xfwd: true,
       },
-      "^/memos.api": {
+      [`^${basePath}/memos\\.api`]: {
         target: devProxyServer,
         xfwd: true,
       },
-      "^/file": {
+      [`^${basePath}/file`]: {
         target: devProxyServer,
         xfwd: true,
       },

@@ -30,8 +30,8 @@ describe("memo export files", () => {
 
     await exportMemos("alice");
 
-    expect(fetchSpy).toHaveBeenCalledWith("/file/users/alice/export", { method: "HEAD", credentials: "same-origin" });
-    expect(download).toHaveBeenCalledWith("/file/users/alice/export", "memos-export-alice-20260920T083000Z.zip");
+    expect(fetchSpy).toHaveBeenCalledWith("/memo/file/users/alice/export", { method: "HEAD", credentials: "same-origin" });
+    expect(download).toHaveBeenCalledWith("/memo/file/users/alice/export", "memos-export-alice-20260920T083000Z.zip");
   });
 
   it("keeps a filename that is not percent-encoded as sent", async () => {
@@ -42,7 +42,7 @@ describe("memo export files", () => {
       }),
     );
     await exportMemos("100%");
-    expect(download).toHaveBeenCalledWith("/file/users/100%25/export", "memos-export-100%-20260920T083000Z.zip");
+    expect(download).toHaveBeenCalledWith("/memo/file/users/100%25/export", "memos-export-100%-20260920T083000Z.zip");
 
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(null, {
@@ -51,7 +51,7 @@ describe("memo export files", () => {
       }),
     );
     await exportMemos("50%");
-    expect(download).toHaveBeenLastCalledWith("/file/users/50%25/export", "memos-export-50%-20260920T083000Z.zip");
+    expect(download).toHaveBeenLastCalledWith("/memo/file/users/50%25/export", "memos-export-50%-20260920T083000Z.zip");
   });
 
   it("reports a refused preflight with its status instead of downloading", async () => {
@@ -66,7 +66,7 @@ describe("memo export files", () => {
 
     await exportMemos("a b");
 
-    expect(download).toHaveBeenCalledWith("/file/users/a%20b/export", "memos-export-a b.zip");
+    expect(download).toHaveBeenCalledWith("/memo/file/users/a%20b/export", "memos-export-a b.zip");
   });
 
   it.each([

@@ -190,6 +190,6 @@ describe("image URL policy", () => {
 
   it("resolves a managed attachment image to the instance's own URL, even over plain http", () => {
     expect(window.location.protocol).toBe("http:");
-    expect(resolve("/file/attachments/photo", "image")).toBe(`${window.location.origin}/file/attachments/photo/photo.png`);
+    expect(resolve("/file/attachments/photo", "image")).toBe(`${window.location.origin}/memo/file/attachments/photo/photo.png`);
   });
 });

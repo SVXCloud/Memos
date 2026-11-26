@@ -1,8 +1,5 @@
-FROM --platform=$BUILDPLATFORM golang:1.27.4-alpine AS backend
+FROM --platform=$BUILDPLATFORM golang:1.27.4-bookworm AS backend
 WORKDIR /backend-build
-
-# Install build dependencies
-RUN apk add --no-cache git ca-certificates
 
 # Copy go mod files and download dependencies (cached layer)
 COPY go.mod go.sum ./
@@ -26,32 +23,11 @@ RUN --mount=type=cache,target=/go/pkg/mod \
       -o memos \
       ./cmd/memos
 
-# Use minimal Alpine with security updates
-FROM alpine:3.21 AS monolithic
-
-# Install runtime dependencies and create non-root user in single layer
-RUN apk add --no-cache tzdata ca-certificates su-exec && \
-    addgroup -g 10001 -S nonroot && \
-    adduser -u 10001 -S -G nonroot -h /var/opt/memos nonroot && \
-    mkdir -p /var/opt/memos /usr/local/memos && \
-    chown -R nonroot:nonroot /var/opt/memos
-
-# Copy binary and entrypoint to /usr/local/memos
+# Reuse the exact 26.11.2 runtime (Alpine, CA bundle, su-exec and UID 10001).
+# The new binary contains the frontend and the fixed HTTP mount.
+FROM ghcr.io/usememos/memos:26.11.2@sha256:3c7bd779510403350465ecabb7e6fbc0887206f9d55b8decf51a205613fa5616 AS monolithic
 COPY --from=backend /backend-build/memos /usr/local/memos/memos
-COPY --from=backend --chmod=755 /backend-build/scripts/entrypoint.sh /usr/local/memos/entrypoint.sh
+COPY --chmod=755 scripts/entrypoint.sh /usr/local/memos/entrypoint.sh
 
-# Run as root to fix permissions, entrypoint will drop to nonroot
-USER root
-
-# Set working directory to the writable volume
-WORKDIR /var/opt/memos
-
-# Data directory
-VOLUME /var/opt/memos
-
-ENV TZ="UTC" \
-    MEMOS_PORT="5230"
-
-EXPOSE 5230
-
-ENTRYPOINT ["/usr/local/memos/entrypoint.sh", "/usr/local/memos/memos"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s \
+    CMD wget -q -O /dev/null "http://127.0.0.1:${MEMOS_PORT}/memo/healthz" || exit 1

@@ -16,6 +16,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/identifier"
 	mast "github.com/usememos/memos/markdown/ast"
 	"github.com/usememos/memos/markdown/extensions"
@@ -554,14 +555,15 @@ func ParseManagedAttachmentImageURL(raw string) (uid string, managed, valid bool
 	if err != nil || parsed.IsAbs() || parsed.Host != "" {
 		return "", false, false
 	}
-	if !strings.HasPrefix(parsed.Path, "/file/attachments/") {
+	attachmentPath := deployment.Unprefix(parsed.Path)
+	if !strings.HasPrefix(attachmentPath, "/file/attachments/") {
 		return "", false, false
 	}
 	if parsed.RawQuery != "" || parsed.Fragment != "" || parsed.RawPath != "" || strings.Contains(parsed.EscapedPath(), "%") {
 		return "", true, false
 	}
 
-	parts := strings.Split(strings.TrimPrefix(parsed.Path, "/file/attachments/"), "/")
+	parts := strings.Split(strings.TrimPrefix(attachmentPath, "/file/attachments/"), "/")
 	if (len(parts) != 1 && len(parts) != 2) || !identifier.UIDMatcher.MatchString(parts[0]) {
 		return "", true, false
 	}

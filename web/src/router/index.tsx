@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import MainLayout from "@/layouts/MainLayout";
 import RootLayout from "@/layouts/RootLayout";
+import { appPath } from "@/lib/deployment-path";
 import { lazyWithReload } from "@/utils/lazy";
 import { RequireAuthRoute, RequireFullInitializationRoute, RequireGuestRoute, RequireInstanceInitializationRoute } from "./guards";
 import { LegacyProfileRedirect } from "./LegacyProfileRedirect";
@@ -166,6 +167,6 @@ export const routeConfig: RouteObject[] = [
   },
 ];
 
-const router = createBrowserRouter(routeConfig);
+const router = createBrowserRouter(routeConfig, { basename: appPath("/") });
 
 export default router;

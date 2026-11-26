@@ -14,6 +14,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/server/auth"
 	"github.com/usememos/memos/store"
@@ -48,7 +49,7 @@ func TestHTTPCompatibility(t *testing.T) {
 	} {
 		for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodPost, http.MethodOptions} {
 			rec := httptest.NewRecorder()
-			s.handler.ServeHTTP(rec, httptest.NewRequest(method, path, nil))
+			s.handler.ServeHTTP(rec, httptest.NewRequest(method, deployment.BasePath()+path, nil))
 			body := rec.Body.String()
 			if strings.Contains(strings.ToLower(body), "<!doctype html>") {
 				body = "<frontend HTML>"
@@ -63,7 +64,7 @@ func TestHTTPCompatibility(t *testing.T) {
 	for _, path := range []string{"/healthz", "/api/missing", "/memos/x"} {
 		for _, origin := range []string{"https://memos.example", "https://evil.example", "null"} {
 			for _, method := range []string{http.MethodGet, http.MethodOptions} {
-				req := httptest.NewRequest(method, path, nil)
+				req := httptest.NewRequest(method, deployment.BasePath()+path, nil)
 				req.Header.Set("Origin", origin)
 				req.Header.Set("Access-Control-Request-Method", "POST")
 				req.Header.Set("Access-Control-Request-Headers", "Authorization,Content-Type")
@@ -114,7 +115,7 @@ func TestHTTPStreaming(t *testing.T) {
 	client := server.Client()
 	streamCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	req, err := http.NewRequestWithContext(streamCtx, http.MethodGet, server.URL+"/api/sse", nil)
+	req, err := http.NewRequestWithContext(streamCtx, http.MethodGet, server.URL+deployment.BasePath()+"/api/sse", nil)
 	require.NoError(t, err)
 	req.Header.Set("Authorization", "Bearer "+token)
 	response, err := client.Do(req)
@@ -130,7 +131,7 @@ func TestHTTPStreaming(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "\n", line)
 
-	create, err := http.NewRequestWithContext(streamCtx, http.MethodPost, server.URL+"/api/memos", strings.NewReader(`{"memoId":"streamed","content":"streamed memo"}`))
+	create, err := http.NewRequestWithContext(streamCtx, http.MethodPost, server.URL+deployment.BasePath()+"/api/memos", strings.NewReader(`{"memoId":"streamed","content":"streamed memo"}`))
 	require.NoError(t, err)
 	create.Header.Set("Authorization", "Bearer "+token)
 	create.Header.Set("Content-Type", "application/json")

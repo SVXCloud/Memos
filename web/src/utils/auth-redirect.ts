@@ -1,4 +1,5 @@
 import { clearAccessToken } from "@/auth-state";
+import { appPath, routePath } from "@/lib/deployment-path";
 import { ROUTES } from "@/router/routes";
 import { buildAuthRoute, isPublicRoute } from "./redirect-safety";
 
@@ -33,8 +34,8 @@ export function redirectOnAuthFailure(
     reason?: string | null;
   },
 ): void {
-  const currentPath = window.location.pathname;
-  const currentRedirectPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const currentPath = routePath(window.location.pathname);
+  const currentRedirectPath = `${currentPath}${window.location.search}${window.location.hash}`;
 
   // Already on auth page, nothing to do.
   if (currentPath.startsWith(ROUTES.AUTH)) {
@@ -47,10 +48,5 @@ export function redirectOnAuthFailure(
   }
 
   clearAccessToken();
-  window.location.replace(
-    buildAuthRoute({
-      ...options,
-      redirect: options?.redirect ?? currentRedirectPath,
-    }),
-  );
+  window.location.replace(appPath(buildAuthRoute({ ...options, redirect: options?.redirect ?? currentRedirectPath })));
 }

@@ -13,6 +13,7 @@ import { MentionResolutionProvider } from "@/contexts/MentionResolutionContext";
 import useMemoDetailError from "@/hooks/useMemoDetailError";
 import { useInfiniteMemoComments, useMemo } from "@/hooks/useMemoQueries";
 import { useSharedMemo, withShareAttachmentLinks } from "@/hooks/useMemoShareQueries";
+import { appPath } from "@/lib/deployment-path";
 import { LEGACY_MEMO_COMMENTS_ANCHOR_ID, MEMO_COMMENTS_ANCHOR_ID } from "@/lib/memo-comments";
 import { memoNamePrefix } from "@/lib/resource-names";
 import { isMemoBlurred } from "@/lib/tag";
@@ -179,7 +180,7 @@ const MemoDetail = () => {
 
   const handleCommentsOpen = useCallback(() => {
     commentSectionRef.current?.scrollIntoView();
-    window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}#${MEMO_COMMENTS_ANCHOR_ID}`);
+    window.history.replaceState(window.history.state, "", appPath(`${location.pathname}${location.search}#${MEMO_COMMENTS_ANCHOR_ID}`));
   }, [location.pathname, location.search]);
 
   const handleCommentCreate = useCallback(() => {

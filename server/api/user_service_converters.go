@@ -9,6 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	coreuser "github.com/usememos/memos/core/user"
+	"github.com/usememos/memos/internal/deployment"
 	apipb "github.com/usememos/memos/proto/gen/api"
 	storepb "github.com/usememos/memos/proto/gen/store"
 	"github.com/usememos/memos/store"
@@ -34,7 +35,7 @@ func convertUserFromStore(user *store.User, viewer *store.User) *apipb.User {
 		// Check if avatar url is base64 format.
 		_, _, err := extractImageInfo(user.AvatarURL)
 		if err == nil {
-			userpb.AvatarUrl = fmt.Sprintf("/file/%s/avatar", userpb.Name)
+			userpb.AvatarUrl = fmt.Sprintf("%s/file/%s/avatar", deployment.BasePath(), userpb.Name)
 		} else {
 			userpb.AvatarUrl = user.AvatarURL
 		}

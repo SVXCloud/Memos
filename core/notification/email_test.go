@@ -76,7 +76,7 @@ func TestEmailSpaceInvitationFailsClosedWithoutPendingOffer(t *testing.T) {
 	require.Equal(t, []string{"invitee@example.com"}, message.To)
 	require.Equal(t, `[Memos] Ada invited you to join "Design team"`, message.Subject)
 	require.Contains(t, message.Body, `Ada invited you to join the Space "Design team" as an administrator.`)
-	require.Contains(t, message.Body, "https://memos.example.com/inbox")
+	require.Contains(t, message.Body, "https://memos.example.com/memo/inbox")
 
 	require.NoError(t, st.DeclineSpaceInvitation(ctx, &store.DeclineSpaceInvitation{SpaceID: space.ID, UserID: invitee.ID}, invitee.ID))
 	message, err = dispatcher.buildInboxEmailMessage(ctx, inbox, invitee, inviter, nil)

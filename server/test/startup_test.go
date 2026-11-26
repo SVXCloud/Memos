@@ -26,6 +26,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"github.com/usememos/memos/core/configuration"
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/profile"
 	"github.com/usememos/memos/internal/version"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -120,7 +121,7 @@ func bootInstance(ctx context.Context, t *testing.T, opts instanceOptions) *inst
 	inst := &instance{
 		server:  s,
 		profile: instanceProfile,
-		baseURL: fmt.Sprintf("http://127.0.0.1:%d", instanceProfile.Port),
+		baseURL: fmt.Sprintf("http://127.0.0.1:%d%s", instanceProfile.Port, deployment.BasePath()),
 		client:  &http.Client{Timeout: 10 * time.Second},
 	}
 	t.Cleanup(func() {

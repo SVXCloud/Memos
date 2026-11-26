@@ -21,6 +21,7 @@ import useCurrentUser from "@/hooks/useCurrentUser";
 import { useSSEConnectionStatus } from "@/hooks/useLiveMemoRefresh";
 import { useNotifications, useUpdateUserGeneralSetting } from "@/hooks/useUserQueries";
 import { locales } from "@/i18n";
+import { appPath } from "@/lib/deployment-path";
 import { cn } from "@/lib/utils";
 import { Routes } from "@/router";
 import { UserNotification_Status } from "@/types/proto/api/user_service_pb";
@@ -172,7 +173,7 @@ const UserMenu = ({ onClose }: { onClose: () => void }) => {
     } catch {
       // Ignore errors from localStorage operations.
     }
-    window.location.replace(buildAuthRoute({ autoSignIn: false }));
+    window.location.replace(appPath(buildAuthRoute({ autoSignIn: false })));
   };
 
   return (

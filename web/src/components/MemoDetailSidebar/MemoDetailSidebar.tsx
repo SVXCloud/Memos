@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import { useOverflowTitle } from "@/hooks";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { appURL } from "@/lib/deployment-path";
 import { MEMO_COMMENTS_ANCHOR_ID } from "@/lib/memo-comments";
 import { isMemoBlurred } from "@/lib/tag";
 import { toast } from "@/lib/toast";
@@ -153,9 +154,8 @@ const MemoDetailSidebar = ({
   const showConnections = !forceReadonly && (!!parentMemo || !!parentStatus || referenced.length > 0);
 
   const handleCopyLink = () => {
-    const host = (profile.instanceUrl || window.location.origin).replace(/\/+$/, "");
     const path = forceReadonly ? `${location.pathname}${location.search}` : `/${memo.name}`;
-    copy(`${host}${path.startsWith("/") ? path : `/${path}`}`);
+    copy(appURL(path, profile.instanceUrl));
     toast.add({ title: t("message.succeed-copy-link"), type: "success" });
   };
 

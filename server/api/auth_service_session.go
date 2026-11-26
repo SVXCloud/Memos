@@ -15,6 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/usememos/memos/internal/clientip"
+	"github.com/usememos/memos/internal/deployment"
 	"github.com/usememos/memos/internal/random"
 	apipb "github.com/usememos/memos/proto/gen/api"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -249,7 +250,7 @@ func isSecureRequest(ctx context.Context) bool {
 func (*APIService) buildRefreshTokenCookie(ctx context.Context, refreshToken string, expireTime time.Time) string {
 	attrs := []string{
 		fmt.Sprintf("%s=%s", auth.RefreshTokenCookieName, refreshToken),
-		"Path=/",
+		"Path=" + deployment.BasePath(),
 		"HttpOnly",
 	}
 	if expireTime.IsZero() {

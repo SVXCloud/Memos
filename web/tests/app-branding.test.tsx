@@ -48,7 +48,7 @@ describe("instance favicon", () => {
     instance.generalSetting.customProfile = { title: "Memos", logoUrl };
     render(<App />);
 
-    expect(icon).toHaveAttribute("href", "/favicon.svg?v=bird-blue");
+    expect(icon).toHaveAttribute("href", "/memo/favicon.svg?v=bird-blue");
     expect(icon).toHaveAttribute("type", "image/svg+xml");
   });
 
@@ -70,25 +70,25 @@ describe("instance favicon", () => {
     rerender(<App />);
 
     expect(document.title).toBe("Memos");
-    expect(icon).toHaveAttribute("href", "/favicon.svg?v=bird-blue");
+    expect(icon).toHaveAttribute("href", "/memo/favicon.svg?v=bird-blue");
     expect(icon).toHaveAttribute("type", "image/svg+xml");
   });
 
   it("keeps the same favicon across system color schemes", () => {
     Object.assign(colorScheme, { matches: true });
     render(<App />);
-    expect(icon).toHaveAttribute("href", "/favicon.svg?v=bird-blue");
+    expect(icon).toHaveAttribute("href", "/memo/favicon.svg?v=bird-blue");
 
     act(() => {
       Object.assign(colorScheme, { matches: false });
       colorScheme.dispatchEvent(new Event("change"));
     });
-    expect(icon).toHaveAttribute("href", "/favicon.svg?v=bird-blue");
+    expect(icon).toHaveAttribute("href", "/memo/favicon.svg?v=bird-blue");
 
     act(() => {
       Object.assign(colorScheme, { matches: true });
       colorScheme.dispatchEvent(new Event("change"));
     });
-    expect(icon).toHaveAttribute("href", "/favicon.svg?v=bird-blue");
+    expect(icon).toHaveAttribute("href", "/memo/favicon.svg?v=bird-blue");
   });
 });

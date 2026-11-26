@@ -6,6 +6,7 @@ import { useInstance } from "@/contexts/InstanceContext";
 import { memoKeys, useDeleteMemo, useUpdateMemo } from "@/hooks/useMemoQueries";
 import useNavigateTo from "@/hooks/useNavigateTo";
 import { userKeys } from "@/hooks/useUserQueries";
+import { appURL } from "@/lib/deployment-path";
 import { handleError } from "@/lib/error";
 import { extractMemoIdFromName } from "@/lib/resource-names";
 import { showErrorToast, toast } from "@/lib/toast";
@@ -110,13 +111,9 @@ export const useMemoActionHandlers = ({ memo, parentPage, onEdit, setDeleteDialo
   }, [memo.name, memo.state, t, isInMemoDetailPage, navigateTo, memoUpdatedCallback, updateMemo]);
 
   const handleCopyLink = useCallback(() => {
-    let host = profile.instanceUrl;
-    if (host === "") {
-      host = window.location.origin;
-    }
     // A comment's link lands on the comment inside its parent memo, as the comment previews do.
     const path = memo.parent ? `${memo.parent}#${extractMemoIdFromName(memo.name)}` : memo.name;
-    copy(`${host}/${path}`);
+    copy(appURL(`/${path}`, profile.instanceUrl));
     toast.add({ title: t("message.succeed-copy-link"), type: "success" });
   }, [memo.name, memo.parent, t, profile.instanceUrl]);
 

@@ -14,6 +14,7 @@ import (
 	"github.com/usememos/memos/core/configuration"
 	"github.com/usememos/memos/core/instancesetting"
 	"github.com/usememos/memos/core/notification"
+	"github.com/usememos/memos/internal/deployment"
 	apipb "github.com/usememos/memos/proto/gen/api"
 	storepb "github.com/usememos/memos/proto/gen/store"
 	"github.com/usememos/memos/store"
@@ -67,7 +68,7 @@ func (s *APIService) GetInstanceProfile(ctx context.Context, _ *apipb.GetInstanc
 	instanceProfile := &apipb.InstanceProfile{
 		Version:     s.Profile.Version,
 		Demo:        s.Profile.Demo,
-		InstanceUrl: s.Profile.InstanceURL,
+		InstanceUrl: deployment.PublicURL(s.Profile.InstanceURL),
 		Admin:       admin, // signed-in callers only; may be nil even on a populated instance
 		Commit:      s.Profile.Commit,
 		NeedsSetup:  len(users) == 0,

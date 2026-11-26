@@ -9,6 +9,7 @@ import { userServiceClient } from "@/connect";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useDialog } from "@/hooks/useDialog";
 import { WEB_CLIPPER_URL } from "@/lib/constants";
+import { appURL } from "@/lib/deployment-path";
 import { handleError } from "@/lib/error";
 import { showErrorToast, toast } from "@/lib/toast";
 import { CreatePersonalAccessTokenResponse, PersonalAccessToken } from "@/types/proto/api/user_service_pb";
@@ -20,7 +21,7 @@ const EXPIRING_SOON_MS = 30 * 24 * 60 * 60 * 1000;
 
 const ApiUsageExample = () => {
   const t = useTranslate();
-  const example = `curl ${window.location.origin}/api/memos \\\n  -H "Authorization: Bearer memos_pat_..."`;
+  const example = `curl ${appURL("/api/memos")} \\\n  -H "Authorization: Bearer memos_pat_..."`;
 
   const handleCopy = () => {
     copy(example);

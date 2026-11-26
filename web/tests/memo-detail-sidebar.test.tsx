@@ -278,7 +278,7 @@ describe("MemoDetailSidebar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "common.share" }));
     fireEvent.click(await screen.findByRole("menuitem", { name: "memo.copy-link" }));
-    expect(copyToClipboard).toHaveBeenCalledWith("https://memos.example/memos/shares/share-token");
+    expect(copyToClipboard).toHaveBeenCalledWith("https://memos.example/memo/memos/shares/share-token");
     expect(screen.queryByRole("menuitem", { name: "memo.share.open-panel" })).not.toBeInTheDocument();
   });
 });

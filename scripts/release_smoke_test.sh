@@ -215,7 +215,7 @@ set_current_base_url() {
   port_mapping="$(docker port "$container_name" 5230/tcp)"
   port="${port_mapping##*:}"
   [[ -n "$port" ]] || die "could not determine the host port for $container_name"
-  current_base_url="http://127.0.0.1:$port"
+  current_base_url="http://127.0.0.1:$port${2:-}"
 }
 
 # api_url prints the API root of the running container. Older releases serve the
@@ -232,6 +232,7 @@ start_container() {
   local container_name="$1"
   local image="$2"
   local volume="$3"
+  local mount="${4:-}"
 
   docker run --detach \
     --name "$container_name" \
@@ -242,7 +243,7 @@ start_container() {
     --mount "type=volume,source=$volume,target=/var/opt/memos" \
     "$image" >/dev/null
 
-  set_current_base_url "$container_name"
+  set_current_base_url "$container_name" "$mount"
   wait_until_ready "$container_name" "$current_base_url"
 }
 
@@ -255,7 +256,7 @@ assert_frontend_assets() {
   [[ -n "$asset_path" ]] || die "frontend JavaScript asset was not found"
   case "$asset_path" in
     http://*|https://*) asset_url="$asset_path" ;;
-    /*) asset_url="$current_base_url$asset_path" ;;
+    /*) asset_url="${current_base_url%/memo}$asset_path" ;;
     *) asset_url="$current_base_url/$asset_path" ;;
   esac
   curl --fail --silent --show-error "$asset_url" >/dev/null
@@ -321,14 +322,14 @@ log "Previous image:  $previous_image"
 
 log "Running fresh-install smoke test"
 docker volume create "$fresh_volume" >/dev/null
-start_container "$fresh_container" "$candidate_image" "$fresh_volume"
+start_container "$fresh_container" "$candidate_image" "$fresh_volume" /memo
 assert_frontend_assets
 create_admin
 fresh_token="$(sign_in)"
 create_memo "$fresh_token" "release-smoke" "fresh install smoke sentinel"
 
 docker restart "$fresh_container" >/dev/null
-set_current_base_url "$fresh_container"
+set_current_base_url "$fresh_container" /memo
 wait_until_ready "$fresh_container" "$current_base_url"
 fresh_token="$(sign_in)"
 assert_memo "$fresh_token" "release-smoke" "fresh install smoke sentinel"
@@ -342,7 +343,7 @@ upgrade_token="$(sign_in)"
 create_memo "$upgrade_token" "pre-upgrade-smoke" "created before release upgrade"
 docker rm -f "$upgrade_old_container" >/dev/null
 
-start_container "$upgrade_new_container" "$candidate_image" "$upgrade_volume"
+start_container "$upgrade_new_container" "$candidate_image" "$upgrade_volume" /memo
 assert_frontend_assets
 upgrade_token="$(sign_in)"
 assert_memo "$upgrade_token" "pre-upgrade-smoke" "created before release upgrade"

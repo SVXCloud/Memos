@@ -2,6 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { memoServiceClient } from "@/connect";
+import { appURL } from "@/lib/deployment-path";
 import type { Attachment } from "@/types/proto/api/attachment_service_pb";
 import type { MemoShare } from "@/types/proto/api/memo_service_pb";
 import {
@@ -82,7 +83,7 @@ export function useSharedMemo(shareToken: string, options?: { enabled?: boolean 
  */
 export function getShareUrl(share: MemoShare): string {
   const token = share.name.split("/").pop() ?? "";
-  return `${window.location.origin}/memos/shares/${token}`;
+  return appURL(`/memos/shares/${token}`);
 }
 
 /**
