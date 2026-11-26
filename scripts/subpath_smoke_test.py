@@ -175,7 +175,7 @@ def proxy_checks(origin):
     attachment = json.loads(body)["attachment"]
     path = f"/file/{attachment['name']}/{urllib.parse.quote(attachment['filename'])}"
     assert client.request(path)[0] == content
-    Client(client.base).request(path, status=404)
+    Client(client.base).request(path, status=401)
     share = client.api("/memos/smoke/shares", {})
     share_token = share["name"].split("/")[-1]
     assert Client(client.base).api(f"/shares/{share_token}/memo")["name"] == "memos/smoke"
