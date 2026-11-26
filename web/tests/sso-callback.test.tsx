@@ -78,7 +78,7 @@ describe("SSO callback recovery", () => {
         value: {
           identityProvider: "identityProviders/company",
           code: "example",
-          redirectUri: `${window.location.origin}/auth/callback`,
+          redirectUri: `${window.location.origin}/memo/auth/callback`,
           codeVerifier: expect.any(String),
         },
       },

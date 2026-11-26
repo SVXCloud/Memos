@@ -23,7 +23,7 @@ describe("SSO initiation", () => {
     expect(url.origin).toBe("https://sso.example.com");
     expect(url.searchParams.get("tenant")).toBe("team");
     expect(url.searchParams.get("client_id")).toBe("client&one");
-    expect(url.searchParams.get("redirect_uri")).toBe(`${window.location.origin}/auth/callback`);
+    expect(url.searchParams.get("redirect_uri")).toBe(`${window.location.origin}/memo/auth/callback`);
     expect(url.searchParams.get("scope")).toBe("openid profile");
     expect(url.searchParams.get("response_type")).toBe("code");
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");

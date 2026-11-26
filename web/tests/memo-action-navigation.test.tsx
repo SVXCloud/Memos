@@ -120,8 +120,8 @@ describe("Memo detail mutation navigation", () => {
   });
 
   it.each([
-    ["", "http://localhost:3000/memos/1"],
-    ["memos/parent", "http://localhost:3000/memos/parent#1"],
+    ["", "http://localhost:3000/memo/memos/1"],
+    ["memos/parent", "http://localhost:3000/memo/memos/parent#1"],
   ])("copies a link that lands on the memo, or on the comment inside its parent (parent: %s)", (parent, link) => {
     const { result } = renderActions(State.NORMAL, parent);
     act(() => result.current.handlers.handleCopyLink());

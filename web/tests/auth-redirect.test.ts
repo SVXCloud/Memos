@@ -54,7 +54,7 @@ describe("redirectOnAuthFailure", () => {
   });
 
   it("does nothing when the user is already on an /auth page", () => {
-    const nav = installLocation("http://localhost/auth?foo=bar");
+    const nav = installLocation("http://localhost/memo/auth?foo=bar");
 
     redirectOnAuthFailure();
 
@@ -63,7 +63,7 @@ describe("redirectOnAuthFailure", () => {
   });
 
   it("does nothing on a public route by default", () => {
-    const nav = installLocation("http://localhost/explore");
+    const nav = installLocation("http://localhost/memo/explore");
 
     redirectOnAuthFailure();
 
@@ -72,44 +72,44 @@ describe("redirectOnAuthFailure", () => {
   });
 
   it("clears the token and redirects to /auth on a protected route", () => {
-    const nav = installLocation("http://localhost/home?tab=pins#latest");
+    const nav = installLocation("http://localhost/memo/home?tab=pins#latest");
 
     redirectOnAuthFailure();
 
     expect(mockedClearAccessToken).toHaveBeenCalledTimes(1);
-    expect(nav.replace).toHaveBeenCalledWith("/auth?redirect=%2Fhome%3Ftab%3Dpins%23latest");
+    expect(nav.replace).toHaveBeenCalledWith("/memo/auth?redirect=%2Fhome%3Ftab%3Dpins%23latest");
   });
 
   it("honours forceRedirect even on a public route", () => {
-    const nav = installLocation("http://localhost/explore");
+    const nav = installLocation("http://localhost/memo/explore");
 
     redirectOnAuthFailure(true);
 
     expect(mockedClearAccessToken).toHaveBeenCalledTimes(1);
-    expect(nav.replace).toHaveBeenCalledWith("/auth?redirect=%2Fexplore");
+    expect(nav.replace).toHaveBeenCalledWith("/memo/auth?redirect=%2Fexplore");
   });
 
   it("embeds the reason parameter when provided", () => {
-    const nav = installLocation("http://localhost/home");
+    const nav = installLocation("http://localhost/memo/home");
 
     redirectOnAuthFailure(false, { reason: "protected-memo" });
 
-    expect(nav.replace).toHaveBeenCalledWith("/auth?redirect=%2Fhome&reason=protected-memo");
+    expect(nav.replace).toHaveBeenCalledWith("/memo/auth?redirect=%2Fhome&reason=protected-memo");
   });
 
   it("prefers an explicitly provided redirect target over the current location", () => {
-    const nav = installLocation("http://localhost/home");
+    const nav = installLocation("http://localhost/memo/home");
 
     redirectOnAuthFailure(false, { redirect: "/setting" });
 
-    expect(nav.replace).toHaveBeenCalledWith("/auth?redirect=%2Fsetting");
+    expect(nav.replace).toHaveBeenCalledWith("/memo/auth?redirect=%2Fsetting");
   });
 
   it("drops an unsafe redirect target silently", () => {
-    const nav = installLocation("http://localhost/home");
+    const nav = installLocation("http://localhost/memo/home");
 
     redirectOnAuthFailure(false, { redirect: "//evil.example/phish" });
 
-    expect(nav.replace).toHaveBeenCalledWith("/auth");
+    expect(nav.replace).toHaveBeenCalledWith("/memo/auth");
   });
 });
